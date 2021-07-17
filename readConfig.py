@@ -1,12 +1,16 @@
 import json
-
+from os.path import dirname, join
+current_dir = dirname(__file__)
+file_path = join(current_dir, "./test.config")
 
 # ---- READ FROM CONFIG ----
-with open("test.config") as json_data_file:
+with open(file_path) as json_data_file:
     data = json.load(json_data_file)
 
 print(data["mysql"]["db"])
 
+
+"""
 # ---- WRITE CONFIG ----
 # First, fetch the file you want to change
 data = open("test.config", "r")
@@ -23,3 +27,4 @@ json.dump(jobj, data, indent = 2)
 data.close()
 
 
+"""

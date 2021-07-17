@@ -1,7 +1,11 @@
 import requests
 import json
 
-header = {"Authorization": "Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}
+with open("test.config") as json_data_file:
+    data = json.load(json_data_file)
+
+token = data["API keys"]["Tibber"]
+header = {"Authorization": "Bearer " + token}
 url = 'https://api.tibber.com/v1-beta/gql'
 
 
