@@ -1,7 +1,7 @@
 import requests
 import json
 
-header = {"Authorization": "Bearer DGXDDdL0J8nkGGDudmyUxV1jLl-r1OPZdCgY2rt0uT8"}
+header = {"Authorization": "Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}
 url = 'https://api.tibber.com/v1-beta/gql'
 
 
