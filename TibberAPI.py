@@ -1,64 +1,40 @@
 import requests
 import json
+from os.path import dirname, join
+import TibberQueries as queries
+from datetime import datetime
 
-with open("test.config") as json_data_file:
-    data = json.load(json_data_file)
+def run_query(query): # A simple function to use requests.post to make the API call.
+  request = requests.post(queries.url(), json={'query': query}, headers=queries.header())
+  
+  if request.status_code == 200:
+      return request.json()
+  else:
+      raise Exception("Query failed to run by returning code of {}. {}".format(request.status_code, query))
 
-token = data["API keys"]["Tibber"]
-header = {"Authorization": "Bearer " + token}
-url = 'https://api.tibber.com/v1-beta/gql'
+def StrToDate(string):
+  dateStr = string[0:10] + ' ' + string[11:19]
+  t = datetime.strptime(dateStr, '%Y-%m-%d %H:%M:%S')
+  return t
 
+def get_prices_tomorrow():#Gets the energy prices for the next day and returns them in a list.
+  q = run_query(queries.price())
+  priceDict = q["data"]["viewer"]["homes"][0]["currentSubscription"]["priceInfo"]["tomorrow"]
+  prices = []
+  for x in priceDict:
+    time = StrToDate(x['startsAt'])
+    price = x['total']
+    #print([time,price])
+    l = [time,price]
+    prices.append([time,price])
+  return prices
 
-def run_query(query): # A simple function to use requests.post to make the API call. Note the json= section.
-    request = requests.post(url, json={'query': query}, headers=header)
-    
-    if request.status_code == 200:
-        return request.json()
-    else:
-        raise Exception("Query failed to run by returning code of {}. {}".format(request.status_code, query))
+def get_consumption():#Gets the energy consumption of the latest hour and returns it
+  q = run_query(queries.consumption())
+  time = StrToDate(str(q["data"]["viewer"]["homes"][0]["consumption"]["nodes"][0]["from"]))
+  cons = q["data"]["viewer"]["homes"][0]["consumption"]["nodes"][0]["consumption"]
+  
+  if cons == None:
+    cons = 0.00
 
-        
-# The GraphQL query (with a few aditional bits included) itself defined as a multi-line string.       
-consumption = """
-{
-  viewer {
-    homes {
-      consumption(resolution: HOURLY, last: 1) {
-        nodes {
-          from
-          to
-          cost
-          consumption
-          consumptionUnit
-        }
-      }
-    }
-  }
-}
-
-"""
-
-price = """
-{
-  viewer {
-    homes {
-      currentSubscription {
-          priceInfo {
-              tomorrow {
-                  total
-                  energy
-                  tax
-                  startsAt
-                  }
-        }
-      }
-    }
-  }
-}
-"""
-
-c = run_query(consumption) # Execute the query
-p = run_query(price) # Execute the query
-print(json.dumps(c["data"]["viewer"]["homes"][0]["consumption"]["nodes"][0], indent=2))
-prices = json.dump(p["data"]["viewer"]["homes"][0]["currentSubscription"]["priceInfo"]["tomorrow"])
-print(type(prices))
+  return [time, cons]
