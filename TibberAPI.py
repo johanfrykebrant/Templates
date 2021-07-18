@@ -21,12 +21,13 @@ def get_prices_tomorrow():#Gets the energy prices for the next day and returns t
   q = run_query(queries.price())
   priceDict = q["data"]["viewer"]["homes"][0]["currentSubscription"]["priceInfo"]["tomorrow"]
   prices = []
+  
   for x in priceDict:
     time = StrToDate(x['startsAt'])
     price = x['total']
-    #print([time,price])
     l = [time,price]
     prices.append([time,price])
+  
   return prices
 
 def get_consumption():#Gets the energy consumption of the latest hour and returns it
